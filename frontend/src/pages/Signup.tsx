@@ -2,7 +2,7 @@ import React from 'react';
 
 const Signup: React.FC = () => {
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100">
       <h1>회원가입</h1>
       <form>
         <div>

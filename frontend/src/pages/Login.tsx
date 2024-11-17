@@ -2,7 +2,7 @@ import React from 'react';
 
 const Login: React.FC = () => {
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100">
       <h1>로그인</h1>
       <form>
         <div>

@@ -1,12 +1,19 @@
+// components/Header.tsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Menu, User } from 'lucide-react';
+import { Button } from './Button';
 
 const Header: React.FC = () => {
   return (
-    <header>
-      <nav>
-        <Link to="/">홈</Link> | <Link to="/main">메인</Link> | <Link to="/map">지도</Link> | <Link to="/board">게시판</Link> | <Link to="/profile">프로필</Link>
-      </nav>
+    <header className="flex h-16 items-center justify-between border-b bg-white px-4">
+      <Button variant="ghost" size="icon">
+        <Menu className="h-6 w-6" />
+        <span className="sr-only">메뉴</span>
+      </Button>
+      <Button variant="ghost" size="icon">
+        <User className="h-6 w-6" />
+        <span className="sr-only">프로필</span>
+      </Button>
     </header>
   );
 };
