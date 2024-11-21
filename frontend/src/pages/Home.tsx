@@ -5,7 +5,7 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-6 rounded shadow-md w-96">
-        <h1 className="text-2xl font-bold text-center mb-6">Welcome to Our Website</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">로그인</h1>
         <div className="flex justify-between">
           <Link
             to="/signup"
