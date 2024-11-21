@@ -1,19 +1,10 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f9fafb; /* 더 밝은 배경색으로 변경 */
-  color: #333; /* 글자색을 진한 회색으로 */
-}
-
 .app-container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
   background-color: #ffffff; /* 배경색 추가 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
   border-radius: 8px; /* 둥근 모서리 추가 */
-  position: relative; /* 추가: 버튼 위치를 위한 상대 위치 */
 }
 
 .app-header {
@@ -25,40 +16,10 @@ body {
   padding: 10px 20px;
   border-radius: 5px;
   border-bottom: 1px solid #e0e0e0; /* 더 밝은 경계선 색상 */
-  /* 추가: notifications-button과 profile-button을 한 줄에 배치 */
   gap: 10px;
-  position: relative; /* 추가: 알림 버튼 위치를 위한 상대 위치 */
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 26px; /* 글자 크기 조정 */
-  font-weight: 600; /* 글자 두께 조정 */
-  flex-grow: 1; /* 추가: 제목이 가능한 공간을 차지하도록 */
-}
-
-.app-header .notifications-button, .app-header .profile-button {
-  background: none;
-  border: none;
-  color: #5f6368;
-  font-size: 24px;
-  cursor: pointer;
-  margin-left: 10px; /* 추가: 버튼 간의 간격 */
-}
-
-.app-header .notifications-button:hover, .app-header .profile-button:hover {
-  color: #1a73e8; /* 호버 시 색상 변경 */
-}
-
-.app-content {
-  margin-top: 20px;
 }
 
 .header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 5px;
   position: relative; /* 추가: 버튼 위치를 위한 상대 위치 */
   overflow: hidden; /* 추가: 넘치는 콘텐츠 숨김 */
 }
@@ -74,13 +35,7 @@ body {
 
 .region-button {
   font-weight: normal;
-  margin: 5px;
-  background-color: #f0f0f0;
-  color: black;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
+  margin: 5px;;
   flex: 0 0 auto;
   margin-right: 10px;
 }
@@ -134,16 +89,11 @@ body {
 }
 
 .search-sort-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 20px;
   gap: 10px; /* 추가: 정렬 옵션과 글쓰기 버튼 사이의 간격 */
 }
 
 .sort-select-container, .write-button-container {
-  display: flex;
-  align-items: center;
   gap: 10px; /* 추가: 정렬 옵션과 글쓰기 버튼 사이의 간격 */
   margin-left: auto; /* 추가: 오른쪽 끝으로 배치 */
 }
@@ -158,12 +108,10 @@ body {
   padding: 10px;
   border: 1px solid #e0e0e0;
   border-radius: 5px;
-  margin-right: 10px;
 }
 
 .pagination-container {
   text-align: center;
-  margin-top: 20px;
 }
 
 .pagination-button {
@@ -183,12 +131,6 @@ body {
 .pagination-button:hover {
   background-color: #e8f0fe; /* 호버 시 배경색 변경 */
   color: #1a73e8; /* 호버 시 글자색 변경 */
-}
-
-.post-list-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
 }
 
 .post-list-thead {
@@ -234,7 +176,7 @@ body {
 
 .post-list-title.viewed .new-text {
   animation: none; /* 본 상태일 때 깜빡임 끄기 */
-  color: #888; /* 본 상태일 때 색상 회색으로 */
+  color: #888; /* 본 상태일 때 색상 ��색으로 */
 }
 
 .post-title .new-post-label {
@@ -283,20 +225,6 @@ body {
   gap: 5px; /* 버튼 간격 조정 */
 }
 
-.edit-button, .reply-button, .delete-button, .back-button {
-  background-color: #1a73e8;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s; /* 전환 효과 추가 */
-}
-
-.edit-button:hover, .reply-button:hover, .delete-button:hover, .back-button:hover {
-  background-color: #1669c1; /* 호버 시 배경색 변경 */
-}
-
 .reply-section, .add-comment {
   margin-top: 10px;
   display: flex;
@@ -320,23 +248,35 @@ body {
 
 .button-group {
   display: flex;
-  gap: 10px; /* 버튼 간의 간격 추가 */
-  margin-top: 10px; /* 버튼 그룹과 텍스트 영역 사이의 간격 추가 */
+  align-items: center;
 }
 
 .profile-container {
   padding: 20px;
   background-color: white;
-  border-radius: 5px;
+  border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .profile-title {
-  margin-top: 0;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.profile-section {
+  margin-bottom: 20px;
 }
 
 .profile-subtitle {
   margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  border-bottom: 2px solid #1a73e8;
+  padding-bottom: 5px;
 }
 
 .profile-posts, .profile-comments, .profile-liked-posts {
@@ -349,6 +289,25 @@ body {
   padding: 10px;
   background-color: #f9f9f9;
   border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.comment-image {
+  max-width: 100px;
+  max-height: 100px;
+  margin-right: 10px;
+  border-radius: 5px;
+}
+
+.back-button {
+  display: block;
+  margin: 0 auto;
+  background-color: #1a73e8;
+  color: white;
+}
+
+.back-button:hover {
+  background-color: #1669c1;
 }
 
 .notifications-container {
@@ -380,12 +339,15 @@ body {
   cursor: pointer;
 }
 
-.notifications-button, .profile-button {
-  background: none;
+.notifications-button {
+  background: none; 
+  top: 6px;
+  right: 40px;
   border: none;
   color: #5f6368;
   font-size: 24px;
   cursor: pointer;
+  position: absolute; /* position 속성을 absolute로 변경 */
 }
 
 .notifications-container h4 {
@@ -461,6 +423,12 @@ body {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  background-color: #1a73e8;
+  color: white;
+}
+
+.form-button:hover {
+  background-color: #1669c1;
 }
 
 .submit-button {
@@ -468,17 +436,8 @@ body {
   color: white;
 }
 
-.cancel-button {
-  background-color: #dc3545;
-  color: white;
-}
-
 .submit-button:hover {
   background-color: #1669c1;
-}
-
-.cancel-button:hover {
-  background-color: #c82333;
 }
 
 .write-post-container {
@@ -528,11 +487,6 @@ body {
   cursor: pointer;
 }
 
-.search-input-container {
-  display: flex;
-  align-items: center;
-}
-
 .menu-drawer {
   z-index: 2000;
   position: fixed;
@@ -542,7 +496,6 @@ body {
   width: 300px; /* 너비를 더 넓게 */
   background-color: #ffffff;
   transition: transform 0.3s ease;
-  transform: translateX(-100%);
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
@@ -571,7 +524,6 @@ body {
   width: 300px; /* 너비를 더 넓게 */
   background-color: #ffffff;
   transition: transform 0.3s ease;
-  transform: translateX(100%);
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
@@ -672,7 +624,7 @@ body {
 }
 
 .delete-post-button {
-  background-color: #1a73e8;
+  background-color: #dc3545;
   color: white;
   border: none;
   padding: 5px 10px;
@@ -683,7 +635,7 @@ body {
 }
 
 .delete-post-button:hover {
-  background-color: #1669c1; /* 호버 시 배경색 변경 */
+  background-color: #c82333; /* 호버 시 배경색 변경 */
 }
 
 .delete-comment-button {
@@ -710,7 +662,6 @@ body {
 
 .post-actions {
   display: flex;
-  gap: 10px;
 }
 
 /* 링크 스타일 수정 */
@@ -723,27 +674,11 @@ a:hover {
   text-decoration: underline;
 }
 
-/* 폼 요소 스타일 개선 */
-input, select, textarea {
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 8px;
-}
-
-/* 버튼 스타일 통일 */
-button {
-  background-color: #1a73e8;
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
 button:hover {
   background-color: #1669c1;
 }
 
-/* 반응형 디자인 추가 */
+/* 반응형 디자인 */
 @media (max-width: 768px) {
   .header-container {
     flex-wrap: nowrap; /* 줄바꿈 방지 */
@@ -757,7 +692,6 @@ button:hover {
 
   .search-input-container, .sort-select-container {
     width: 100%;
-    margin-bottom: 10px;
   }
 }
 
@@ -785,29 +719,6 @@ button:hover {
 .post-list-title.viewed .new-text {
   animation: none; /* 본 상태일 때 깜빡임 끄기 */
   color: #888; /* 본 상태일 때 색상 회색으로 */
-}
-
-.header-scroll-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #1669c1;
-  background-color: rgba(255, 255, 255, 0.8);
-  border: none;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.header-scroll-button.left {
-  left: 10px; /* 왼쪽으로 배치 */
-}
-
-.header-scroll-button.right {
-  right: 10px; /* 오른쪽으로 배치 */
-}
-
-.header-scroll-button:hover {
-  background-color: rgba(255, 255, 255, 1);
 }
 
 .comment-container.reply {
@@ -876,7 +787,7 @@ button:hover {
   background-color: #dc3545;
   color: white;
   border: none;
-  padding: 5px 10px;
+  margin-right: 10px;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s; /* 전환 효과 추가 */
@@ -884,4 +795,150 @@ button:hover {
 
 .delete-image-button:hover {
   background-color: #c82333; /* 호버 시 배경색 변경 */
+}
+
+.reply-comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 버튼 간의 간격 추가 */
+  margin-top: 10px; /* 버튼 그룹과 텍스트 영역 사이의 간격 추가 */
+}
+
+.save-comment-button, .cancel-button, .add-comment-button, .add-reply-button {
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s; /* 전환 효과 추가 */
+}
+
+.save-comment-button:hover, .cancel-button:hover, .add-comment-button:hover, .add-reply-button:hover {
+  background-color: #1669c1; /* 호버 시 배경색 변경 */
+}
+
+.image-preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.image-preview {
+  position: relative;
+}
+
+.image-preview img {
+  max-width: 100px;
+  max-height: 100px;
+  border-radius: 5px;
+}
+
+.profile-image-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-image-label {
+  cursor: pointer;
+}
+
+.profile-image-input {
+  display: none;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-image-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #888;
+}
+
+.profile-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-button {
+  z-index: 1500;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.profile-button img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-button:hover {
+  background-color: #1669c1;
+}
+
+.crop-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: #333;
+  z-index: 1000; /* z-index 값 증가 */
+}
+
+.crop-container .reactEasyCrop_CropArea {
+  border: 2px dashed #fff;
+}
+
+.crop-container button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.crop-container button:hover {
+  background-color: #1669c1;
+}
+
+.crop-button {
+  z-index: 1001; /* 버튼의 z-index 값 증가 */
+}
+
+.user-profile-image {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer; /* 커서 포인터로 변경 */
+  transition: background-color 0.3s; /* 전환 효과 추가 */
+}
+
+.user-profile-image:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* 호버 시 배경색 변경 */
 }

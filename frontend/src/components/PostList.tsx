@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useNavigate, Link } from 'react-router-dom'; // Link 추가
 import type { Post, Comment } from '../types/Post';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faImage } from '@fortawesome/free-solid-svg-icons';
+import { faImage } from '@fortawesome/free-solid-svg-icons';
 import '../App.css'; // CSS 파일 추가
 
 interface CommentsDictionary {
@@ -18,11 +18,16 @@ interface PostListProps {
   viewedPosts: Set<number>; // 이미 본 게시글 ID를 저장하는 상태
   onPostClick: (id: number) => void; // 게시글 클릭 핸들러
   onDeletePost: (id: number) => void; // 게시물 삭제 핸들러 추가
+  sortOption: string; // 추가
+  setSortOption: (option: string) => void; // 추가
+  searchQuery: string; // 검색어 상태 추가
+  setSearchQuery: (query: string) => void; // 검색어 상태 변경 함수 추가
+  searchType: string; // 검색 유형 상태 추가
+  setSearchType: (type: string) => void; // 검색 유형 상태 변경 함수 추가
 }
 
-const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, comments, viewedPosts, onPostClick, onDeletePost }) => {
+const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, onAddComment, comments, viewedPosts, onPostClick, onDeletePost, sortOption, setSortOption, searchQuery, setSearchQuery, searchType, setSearchType }) => {
   const navigate = useNavigate();
-  const [sortOption, setSortOption] = useState('date'); // 정렬 옵션 상태 추가
 
   const handlePostClick = (id: number) => {
     onPostClick(id); // 게시글 클릭 핸들러 호출
@@ -33,7 +38,7 @@ const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, c
     const dateRegex = /^(\d{4})\. (\d{1,2})\. (\d{1,2})\.\s*(오전|오후)\s*(\d{1,2}):(\d{2}):(\d{2})$/;
     const match = dateStr.match(dateRegex);
     if (!match) throw new Error('Invalid date format');
-    const [_, year, month, day, period, hourStr, minuteStr, secondStr] = match;
+    const [ , year, month, day, period, hourStr, minuteStr, secondStr ] = match; // '_' 제거
     let hour = parseInt(hourStr, 10);
     if (period === '오후' && hour < 12) hour += 12;
     if (period === '오전' && hour === 12) hour = 0;
@@ -63,19 +68,16 @@ const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, c
   const sortedPosts = posts.sort((a, b) => {
     if (sortOption === 'date') {
       return parseKoreanDate(b.date).getTime() - parseKoreanDate(a.date).getTime();
-    } else if (sortOption === 'oldest') {
+    }
+    if (sortOption === 'oldest') {
       return parseKoreanDate(a.date).getTime() - parseKoreanDate(b.date).getTime();
-    } else if (sortOption === 'likes') {
-      if (b.likes === a.likes) {
-        return parseKoreanDate(b.date).getTime() - parseKoreanDate(a.date).getTime();
-      }
+    }
+    if (sortOption === 'likes') {
       return b.likes - a.likes;
-    } else if (sortOption === 'comments') {
+    }
+    if (sortOption === 'comments') {
       const bComments = comments[b.id]?.length || 0;
       const aComments = comments[a.id]?.length || 0;
-      if (bComments === aComments) {
-        return parseKoreanDate(b.date).getTime() - parseKoreanDate(a.date).getTime();
-      }
       return bComments - aComments;
     }
     return 0;
@@ -83,6 +85,34 @@ const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, c
 
   return (
     <div>
+      <div className="search-sort-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+        <div className="search-input-container" style={{ flexGrow: 2, marginRight: '10px', display: 'flex', alignItems: 'center' }}>
+          <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className="search-type-select" style={{ marginRight: '10px' }}>
+            <option value="all">전체</option>
+            <option value="title">제목</option>
+            <option value="content">내용</option>
+            <option value="author">글쓴이</option>
+          </select>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="검색어를 입력하세요"
+            className="search-input"
+          />
+        </div>
+        <div className="sort-select-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="sort-select">
+            <option value="date">최신순</option>
+            <option value="oldest">오래된 순</option>
+            <option value="likes">좋아요순</option>
+            <option value="comments">댓글순</option>
+          </select>
+          <Link to="/blog/write">
+            <button className="write-button" style={{ marginTop: '5px' }}>글쓰기</button>
+          </Link>
+        </div>
+      </div>
       <table className="post-list-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead className="post-list-thead">
           <tr className="post-list-tr">
@@ -100,24 +130,21 @@ const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, c
                 className="post-list-title"
                 style={{
                   cursor: 'pointer',
-                  color: viewedPosts.has(post.id) ? '#888' : '#007bff', // 이미 본 게시글은 회색으로 표시
+                  color: viewedPosts.has(post.id) ? '#888' : '#007bff',
                 }}
                 onClick={() => handlePostClick(post.id)}
               >
                 <div className="post-title">
-                  [{post.region}] {post.title}
-                  {post.image && <FontAwesomeIcon icon={faImage} className="post-image-icon" style={{ marginLeft: '5px', color: '#ffa500' }} />}
-                  {isNewPost(post.date) && !viewedPosts.has(post.id) && (
-                    <>
-                      <FontAwesomeIcon icon={faStar} className="new-post-icon" />
-                      <div className="new-text">NEW</div>
-                    </>
+                  [{post.region}]{post.title}
+                  {post.images && post.images.length > 0 && post.images[0] !== 'DELETED' && (
+                    <FontAwesomeIcon icon={faImage} className="post-image-icon" style={{ marginLeft: '5px', color: '#ffa500' }} />
                   )}
+                  {isNewPost(post.date) && !viewedPosts.has(post.id) && <div className="new-text">NEW</div>}
                 </div>
               </td>
               <td className="post-list-author">
                 <div className="post-author">
-                  {post.author} {post.author === currentUser && '(나)'}
+                  {post.author.nickname}{post.author.nickname === currentUser && '(나)'}
                 </div>
               </td>
               <td className="post-list-date">
@@ -125,19 +152,15 @@ const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, c
               </td>
               <td className="post-list-likes">
                 <div className="post-likes" onClick={() => onToggleLike(post.id, post.liked)}>
-                  <span className="like-icon" role="img" aria-label="like"> {post.liked ? '❤️' : '🤍'}
-                  </span> {post.likes}
+                  <span className="like-icon" role="img" aria-label="like">
+                    {post.liked ? '❤️' : '🤍'}
+                  </span>
+                  {post.likes}
                 </div>
               </td>
               <td className="post-list-comments">
                 <div className="post-comments-container">
                   {comments[post.id]?.length || 0}개
-                  {post.comments.map(comment => (
-                    <div key={comment.id}>
-                      {comment.image && <img src={comment.image} alt="Comment" />}
-                      {comment.content}
-                    </div>
-                  ))}
                 </div>
               </td>
             </tr>
