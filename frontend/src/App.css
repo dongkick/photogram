@@ -58,15 +58,15 @@
 }
 
 .region-button.selected {
-  background: #1a73e8;
-  color: #ffffff;
-  border-color: #1a73e8;
+  background: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
+  border-color: #FEEFC5;
   font-weight: bold;
 }
 
 .region-button:hover {
-  background-color: #e8f0fe; /* 호버 시 배경색 변경 */
-  color: #1a73e8; /* 호버 시 글자색 변경 */
+  background-color: #FEEFC5; /* 호버 시 배경색 변경 */
+  color: #000000; /* 호버 시 글자색 변경 */
 }
 
 .write-button-container {
@@ -74,8 +74,8 @@
 }
 
 .write-button {
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
@@ -85,7 +85,7 @@
 }
 
 .write-button:hover {
-  background-color: #1669c1; /* 호버 시 배경색 변경 */
+  background-color: #FEEFC5; /* 호버 시 배경색 변경 */
 }
 
 .search-sort-container {
@@ -124,8 +124,8 @@
 }
 
 .pagination-button.active {
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
 }
 
 .pagination-button:hover {
@@ -150,6 +150,9 @@
 .post-title {
   display: flex;
   align-items: center; /* 추가: 자식 요소들을 같은 높이로 정렬 */
+  flex: 1; /* 추가: 제목이 가능한 공간을 차지하도록 */
+  margin-right: 10px; /* 추가: 제목과 버튼 사이의 간격 */
+  word-break: break-word; /* 추가: 긴 단어가 줄바꿈 되도록 */
 }
 
 .new-post-icon {
@@ -176,7 +179,7 @@
 
 .post-list-title.viewed .new-text {
   animation: none; /* 본 상태일 때 깜빡임 끄기 */
-  color: #888; /* 본 상태일 때 색상 ��색으로 */
+  color: #888; /* 본 상태일 때 색상 회색으로 */
 }
 
 .post-title .new-post-label {
@@ -243,7 +246,7 @@
 }
 
 .reply-button:hover, .add-comment-button:hover, .cancel-button:hover {
-  background-color: #1669c1; /* 호버 시 배경색 변경 */
+  background-color: #FEEFC5; /* 호버 시 배경색 변경 */
 }
 
 .button-group {
@@ -275,7 +278,7 @@
   margin-bottom: 10px;
   font-size: 20px;
   font-weight: bold;
-  border-bottom: 2px solid #1a73e8;
+  border-bottom: 2px solid #FEEFC5;
   padding-bottom: 5px;
 }
 
@@ -302,12 +305,12 @@
 .back-button {
   display: block;
   margin: 0 auto;
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
 }
 
 .back-button:hover {
-  background-color: #1669c1;
+  background-color: #FEEFC5;
 }
 
 .notifications-container {
@@ -329,14 +332,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  color: black;
-  font-size: 16px;
-  cursor: pointer;
 }
 
 .notifications-button {
@@ -423,21 +418,19 @@
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
 }
 
 .form-button:hover {
-  background-color: #1669c1;
+  background-color: #FEEFC5;
 }
 
 .submit-button {
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
 }
 
 .submit-button:hover {
-  background-color: #1669c1;
+  background-color: #FEEFC5;
 }
 
 .write-post-container {
@@ -548,8 +541,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
 }
 
 .close-button {
@@ -580,7 +573,7 @@
 .menu-drawer h2, .profile-drawer h2 {
   padding: 20px;
   margin: 0;
-  background-color: #1a73e8;
+  background-color: #FEEFC5;
   color: white;
   font-size: 30px; /* 폰트 크기 더 크게 */
   text-align: center; /* 가운데 정렬 */
@@ -593,8 +586,8 @@
 }
 
 .edit-post-button {
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
   border: none;
   padding: 5px 10px;
   border-radius: 5px;
@@ -604,12 +597,12 @@
 }
 
 .edit-post-button:hover {
-  background-color: #1669c1; /* 호버 시 배경색 변경 */
+  background-color: #FEEFC5; /* 호버 시 배경색 변경 */
 }
 
 .edit-comment-button {
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
   border: none;
   padding: 5px 10px;
   border-radius: 5px;
@@ -620,7 +613,7 @@
 }
 
 .edit-comment-button:hover {
-  background-color: #1669c1; /* 호버 시 배경색 변경 */
+  background-color: #FEEFC5; /* 호버 시 배경색 변경 */
 }
 
 .delete-post-button {
@@ -639,8 +632,8 @@
 }
 
 .delete-comment-button {
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
   border: none;
   padding: 5px 10px;
   border-radius: 5px;
@@ -651,13 +644,14 @@
 }
 
 .delete-comment-button:hover {
-  background-color: #1669c1; /* 호버 시 배경색 변경 */
+  background-color: #FEEFC5; /* 호버 시 배경색 변경 */
 }
 
 .post-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap; /* 추가: 제목이 길어질 때 버튼들이 줄바꿈 되도록 */
 }
 
 .post-actions {
@@ -666,7 +660,7 @@
 
 /* 링크 스타일 수정 */
 a {
-  color: #1a73e8;
+  color: #FEEFC5;
   text-decoration: none;
 }
 
@@ -675,7 +669,7 @@ a:hover {
 }
 
 button:hover {
-  background-color: #1669c1;
+  background-color: #FEEFC5;
 }
 
 /* 반응형 디자인 */
@@ -744,8 +738,8 @@ button:hover {
 }
 
 .comment-action-button {
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
   border: none;
   padding: 5px 10px;
   border-radius: 5px;
@@ -756,7 +750,7 @@ button:hover {
 }
 
 .comment-action-button:hover {
-  background-color: #1669c1; /* 호버 시 배경색 변경 */
+  background-color: #FEEFC5; /* 호버 시 배경색 변경 */
 }
 
 .comment-image {
@@ -805,8 +799,8 @@ button:hover {
 }
 
 .save-comment-button, .cancel-button, .add-comment-button, .add-reply-button {
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #000000; /* 텍스트 색상 검은색으로 변경 */
   border: none;
   padding: 5px 10px;
   border-radius: 5px;
@@ -815,7 +809,7 @@ button:hover {
 }
 
 .save-comment-button:hover, .cancel-button:hover, .add-comment-button:hover, .add-reply-button:hover {
-  background-color: #1669c1; /* 호버 시 배경색 변경 */
+  background-color: #FEEFC5; /* 호버 시 배경색 변경 */
 }
 
 .image-preview-container {
@@ -880,8 +874,8 @@ button:hover {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background-color: #1a73e8;
-  color: white;
+  background-color: #FEEFC5;
+  color: #ffffff;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -895,7 +889,7 @@ button:hover {
 }
 
 .profile-button:hover {
-  background-color: #1669c1;
+  background-color: #FEEFC5;
 }
 
 .crop-container {
@@ -920,7 +914,7 @@ button:hover {
 }
 
 .crop-container button:hover {
-  background-color: #1669c1;
+  background-color: #FEEFC5;
 }
 
 .crop-button {
@@ -941,4 +935,48 @@ button:hover {
 
 .user-profile-image:hover {
   background-color: rgba(0, 0, 0, 0.1); /* 호버 시 배경색 변경 */
+}
+
+.author-profile-image {
+  width: 50px; /* 프로필 이미지의 너비 */
+  height: 50px; /* 프로필 이미지의 높이 */
+  border-radius: 50%; /* 동그랗게 만들기 */
+  object-fit: cover; /* 이미지가 영역을 채우도록 */
+  margin-right: 10px; /* 이미지와 텍스트 사이의 간격 */
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-author {
+  margin: 0;
+}
+
+.post-date {
+  margin: 0;
+  color: #888;
+  font-size: 0.9em;
+}
+
+.author-profile-placeholder {
+  width: 50px; /* 프로필 이미지의 너비 */
+  height: 50px; /* 프로필 이미지의 높이 */
+  border-radius: 50%; /* 동그랗게 만들기 */
+  background-color: #e0e0e0; /* 배경색 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px; /* 이미지와 텍스트 사이의 간격 */
+}
+
+.author-profile-icon {
+  color: #888; /* 아이콘 색상 */
+  font-size: 24px; /* 아이콘 크기 */
+}
+
+.profile-details {
+  display: flex;
+  align-items: center;
 }

@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import type { Post as PostType, User } from '../types/Post'; // 수정
+import type { Post as PostType, User } from '../types/Post';
 
 interface EditPostProps {
   posts: PostType[];
-  onEditPost: (id: number, updatedPost: { title: string; content: string; region: string; images: string[] }) => void; // 수정
-  currentUser: string; // 현재 로그인한 사용자의 이름을 받아옴
+  onEditPost: (id: number, updatedPost: { title: string; content: string; region: string; images: string[] }) => void;
+  currentUser: string;
 }
 
 const EditPost: React.FC<EditPostProps> = ({ posts, onEditPost, currentUser }) => {
-  const { id } = useParams<{ id: string }>(); // URL 파라미터로 id 받기
-  const postId = parseInt(id || '0', 10); // 파라미터로 받은 id는 문자열이라 숫자로 변환
+  const { id } = useParams<{ id: string }>();
+  const postId = parseInt(id || '0', 10);
   const post = posts.find((post) => post.id === postId);
   const navigate = useNavigate();
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [author, setAuthor] = useState<User | null>(null);
+  const [title, setTitle] = useState(post?.title || '');
+  const [content, setContent] = useState(post?.content || '');
+  const [author, setAuthor] = useState<User | null>(post?.author || null);
   const [region, setRegion] = useState(post?.region || '경기');
-  const [images, setImages] = useState<string[]>(post?.images || []); // 이미지 상태 추가
+  const [images, setImages] = useState<string[]>(post?.images || []);
 
   useEffect(() => {
     if (post) {
@@ -33,21 +33,24 @@ const EditPost: React.FC<EditPostProps> = ({ posts, onEditPost, currentUser }) =
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (post && post.author.nickname === currentUser) { // 본인만 수정할 수 있도록
-      onEditPost(postId, { title, content, region, images });
-      navigate(`/blog/post/${id}`); // 수정 후 해당 게시글 상세 페이지로 이동
-    } else {
-      alert(`본인 글만 수정할 수 있습니다. Current User: ${currentUser}, Post Author: ${post ? post.author.nickname : 'undefined'}`);
+    if (!post) {
+      alert('게시글을 찾을 수 없습니다.');
+      return;
     }
+
+    if (post.author.nickname === currentUser) {
+      onEditPost(postId, { title, content, region, images });
+      navigate(`/blog/post/${id}`);
+    } 
+    else alert(`본인 글만 수정할 수 있습니다. Current User: ${currentUser}, Post Author: ${post.author.nickname}`);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newImages = Array.from(e.target.files).map(file => URL.createObjectURL(file));
       setImages(newImages);
-    } else {
-      setImages([]);
-    }
+    } 
+    else setImages([]);
   };
 
   const handleImageDelete = (index: number) => {

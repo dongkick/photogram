@@ -20,6 +20,11 @@ const WritePost: React.FC<WritePostProps> = ({ onAddPost, currentUser, selectedR
     const post = { title, author: currentUser, content, region, images, authorProfileImage: currentUser.profileImage }; // authorProfileImage 추가
     const postId = onAddPost(post); // 새 게시글의 ID를 반환받음
     navigate(`/blog/post/${postId}`); // 저장 후 해당 게시글 링크로 이동
+    // 상태 초기화
+    setTitle('');
+    setContent('');
+    setRegion(selectedRegion !== '전체' ? selectedRegion : '서울');
+    setImages([]);
   };
 
   const handleCancel = () => {
@@ -34,7 +39,11 @@ const WritePost: React.FC<WritePostProps> = ({ onAddPost, currentUser, selectedR
   };
 
   const handleImageDelete = (index: number) => {
-    setImages(prevImages => prevImages.filter((_, i) => i !== index));
+    setImages(prevImages => {
+      const newImages = prevImages.filter((_, i) => i !== index);
+      URL.revokeObjectURL(prevImages[index]); // URL 해제
+      return newImages;
+    });
   };
 
   return (
@@ -112,7 +121,7 @@ const WritePost: React.FC<WritePostProps> = ({ onAddPost, currentUser, selectedR
           </div>
         </div>
         <div className="form-buttons">
-          <button type="submit" className="form-button" style={{ backgroundColor: '#007bff', color: 'white' }}>게시글 작성</button>
+          <button type="submit" className="form-button" style={{ backgroundColor: '#FEEFC5', color: 'black' }}>게시글 작성</button>
           <button type="button" onClick={handleCancel} className="form-button cancel-button" style={{ backgroundColor: '#dc3545', color: 'white' }}>취소</button>
         </div>
       </form>

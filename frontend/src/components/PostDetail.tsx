@@ -28,14 +28,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
   const [newCommentImage, setNewCommentImage] = useState<string | undefined>(undefined);
   const [showComments, setShowComments] = useState(true);
   const [showLikedBy, setShowLikedBy] = useState(false);
-  const [img, setImg] = useState<string>('');
-  const [edID, setEdID] = useState<number | null>(null);
 
   const handleDeleteImage = useCallback(
     (setImage: React.Dispatch<React.SetStateAction<string | undefined>>) => {
       try {
         setImage(undefined);
-        setImg('DELETED');
       } catch (error) {
         alert("이미지를 삭제하는 중 오류가 발생했습니다.");
       }
@@ -50,25 +47,6 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
         <button className="back-button" onClick={() => navigate('/blog')}>메인 페이지로 이동</button>
       </div>
     );
-  }
-
-  if (comments[post.id] !== undefined && img !== '') {
-    const updatedComments = comments[post.id].map((comment) => {
-      if(comment.id === edID) return { ...comment, image: img };
-      return comment;
-    });
-    comments[post.id] = updatedComments;
-    setImg('');
-    setEdID(null);
-  }
-  else if (comments[post.id] !== undefined && img === 'DELETED') {
-    const updatedComments = comments[post.id].map((comment) => {
-      if(comment.id === edID) return { ...comment, image: undefined };
-      return comment;
-    });
-    comments[post.id] = updatedComments;
-    setImg('');
-    setEdID(null);
   }
 
   const handleAddComment = () => {
@@ -100,8 +78,6 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
       return;
     }
     const updatedDate = `${new Date().toLocaleString()} (수정됨)`;
-    setImg(editingCommentImage || 'DELETED');
-    setEdID(commentId);
 
     onEditComment(
       post.id,
@@ -110,19 +86,6 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
       updatedDate,
       editingCommentImage || ''
     );
-
-    const updatedComments = comments[post.id].map((comment) => {
-      if (comment.id === commentId) {
-        return {
-          ...comment,
-          content: editingCommentContent,
-          image: editingCommentImage || undefined,
-          date: updatedDate,
-        };
-      }
-      return comment;
-    });
-    comments[post.id] = updatedComments;
 
     setEditingCommentId(null);
     setEditingCommentContent('');
@@ -286,13 +249,15 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
             {post.author.profileImage && (
               <img src={post.author.profileImage} alt="Author Profile" className="author-profile-image" />
             )}
-            <p className="post-author">작성자: {post.author.nickname} {post.author.nickname === currentUser && '(나)'}</p>
-            <p className="post-date">
-              게시일: {post.date}
-              {post.editedDate && (
-                <span className="post-edited-date" style={{ fontSize: '0.8em', color: '#888' }}> (수정됨 {post.editedDate})</span>
-              )}
-            </p>
+            <div className="author-info">
+              <p className="post-author">{post.author.nickname} {post.author.nickname === currentUser && '(나)'}</p>
+              <p className="post-date">
+                {post.date}
+                {post.editedDate && (
+                  <span className="post-edited-date" style={{ fontSize: '0.8em', color: '#888' }}> (수정됨 {post.editedDate})</span>
+                )}
+              </p>
+            </div>
           </div>
         </div>
         <p className="post-content">{post.content}</p>

@@ -11,6 +11,8 @@ interface ProfileProps {
   users: User[];
 }
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
 const Profile: React.FC<ProfileProps> = ({ posts, comments, currentUser, users }) => {
   const navigate = useNavigate();
   const currentUserProfile = users.find(user => user.nickname === currentUser);
@@ -26,10 +28,8 @@ const Profile: React.FC<ProfileProps> = ({ posts, comments, currentUser, users }
   const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    const userProfile = currentUserProfile?.profileImage || null;
-    console.log('userProfile:', userProfile, 'currentUser:', currentUser);
-    setProfileImage(userProfile);
-  }, [currentUserProfile, currentUser]);
+    setProfileImage(currentUserProfile?.profileImage || null);
+  }, [currentUserProfile]);
 
   const handleGoBack = () => {
     navigate('/');
@@ -38,7 +38,7 @@ const Profile: React.FC<ProfileProps> = ({ posts, comments, currentUser, users }
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.size > 2 * 1024 * 1024) {
+      if (file.size > MAX_FILE_SIZE) {
         alert('이미지 크기는 2MB를 초과할 수 없습니다.');
         return;
       }
@@ -56,13 +56,16 @@ const Profile: React.FC<ProfileProps> = ({ posts, comments, currentUser, users }
 
   const handleSave = async () => {
     if (imageSrc && croppedArea) {
-      const croppedImage = await getCroppedImg(imageSrc, croppedArea);
-      console.log('croppedImage:', croppedImage);
-      setProfileImage(croppedImage);
-      if (currentUserProfile) {
-        currentUserProfile.profileImage = croppedImage;
+      try {
+        const croppedImage = await getCroppedImg(imageSrc, croppedArea);
+        setProfileImage(croppedImage);
+        if (currentUserProfile) {
+          currentUserProfile.profileImage = croppedImage;
+        }
+        setImageSrc(null);
+      } catch (error) {
+        console.error('Error cropping image:', error);
       }
-      setImageSrc(null);
     }
   };
 
@@ -76,7 +79,7 @@ const Profile: React.FC<ProfileProps> = ({ posts, comments, currentUser, users }
       <h1 className="profile-title">{currentUser}님의 프로필</h1>
       <div className="profile-image-section">
         <label htmlFor="profile-image-upload" className="profile-image-label">
-          {profileImage && profileImage !== 'DELETED' && profileImage !== 'undefined' ? (
+          {profileImage ? (
             <img src={profileImage} alt="Profile" className="profile-image" />
           ) : (
             <div className="profile-image-placeholder">프로필 이미지 업로드</div>
@@ -124,8 +127,9 @@ const Profile: React.FC<ProfileProps> = ({ posts, comments, currentUser, users }
         <ul className="profile-comments">
           {userComments.map(comment => (
             <li key={comment.id} className="profile-comment-item">
-              {comment.image && comment.image !== 'DELETED' && 
-              <img src={comment.image} alt="Comment" className="comment-image" style={{ width: '100px' }} />}
+              {comment.image && (
+                <img src={comment.image} alt="Comment" className="comment-image" style={{ width: '100px' }} />
+              )}
               <strong>{comment.content}</strong> - {comment.date}
             </li>
           ))}
