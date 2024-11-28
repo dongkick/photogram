@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import type { Post, Comment } from '../types/Post';
+import type { Post, Comment, User } from '../types/Post';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 import '../App.css';
 
 interface CommentsDictionary {
@@ -11,7 +12,7 @@ interface CommentsDictionary {
 
 interface PostListProps {
   posts: Post[];
-  currentUser: string;
+  currentUser: User;
   onToggleLike: (id: number) => void;
   onAddComment: (postId: number, newComment: Comment) => void;
   comments: CommentsDictionary;
@@ -27,21 +28,19 @@ interface PostListProps {
 }
 
 const parseKoreanDate = (dateStr: string): Date => {
-  const dateRegex = /^(\d{4})\. (\d{1,2})\. (\d{1,2})\.\s*(오전|오후)\s*(\d{1,2}):(\d{2}):(\d{2})$/;
-  const match = dateStr.match(dateRegex);
-  if (!match) throw new Error('Invalid date format');
-  const [ , year, month, day, period, hourStr, minuteStr, secondStr ] = match;
-  let hour = parseInt(hourStr, 10);
-  if (period === '오후' && hour < 12) hour += 12;
-  if (period === '오전' && hour === 12) hour = 0;
-  return new Date(
-    parseInt(year, 10),
-    parseInt(month, 10) - 1,
-    parseInt(day, 10),
-    hour,
-    parseInt(minuteStr, 10),
-    parseInt(secondStr, 10)
-  );
+  const match = dateStr.match(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (\w{3}) (\d{1,2}) (\d{2}):(\d{2}):(\d{2}) KST (\d{4})$/);
+  if (match) {
+    const [ , , monthStr, day, hour, minute, second, year ] = match;
+    const monthMap: { [key: string]: number } = {
+      Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+      Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+    };
+    const month = monthMap[monthStr];
+    return new Date(Number(year), month, Number(day), Number(hour), Number(minute), Number(second));
+  }
+
+  console.error('Invalid date format:', dateStr);
+  return new Date(0); // 기본값 반환
 };
 
 const truncateTitleByWidth = (title: string, maxWidth: number, font: string) => {
@@ -63,8 +62,21 @@ const truncateTitleByWidth = (title: string, maxWidth: number, font: string) => 
   return title;
 };
 
-const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, onAddComment, comments, viewedPosts, onPostClick, onDeletePost, sortOption, setSortOption, searchQuery, setSearchQuery, searchType, setSearchType }) => {
+const PostList: React.FC<PostListProps> = ({ currentUser, onToggleLike, onAddComment, comments, viewedPosts, onPostClick, onDeletePost, sortOption, setSortOption, searchQuery, setSearchQuery, searchType, setSearchType }) => {
+  const [posts, setPosts] = useState<Post[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/posts');
+        setPosts(response.data);
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
+    fetchPosts();
+  }, []);
 
   const handlePostClick = (id: number) => {
     onPostClick(id);
@@ -164,7 +176,7 @@ const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, o
               </td>
               <td className="post-list-author">
                 <div className="post-author">
-                  {post.author.nickname}{post.author.nickname === currentUser && '(나)'}
+                  {post.author.nickname}{post.author.nickname === currentUser.nickname && '(나)'}
                 </div>
               </td>
               <td className="post-list-date">

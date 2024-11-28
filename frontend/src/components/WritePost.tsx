@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types/Post';
+import axios from 'axios';
 
 interface WritePostProps {
-  onAddPost: (newPost: { title: string; author: User; content: string; region: string; images: string[]; authorProfileImage: string | null }) => string; // ID를 반환하도록 수정
+  onAddPost: (newPost: { title: string; author: User; content: string; region: string; images: string[]; }) => string; // ID를 반환하도록 수정 (authorProfileImage: currentUser.profileImage)
   currentUser: User; // 현재 로그인한 사용자
   selectedRegion: string; // 선택된 지역
 }
@@ -12,14 +13,29 @@ const WritePost: React.FC<WritePostProps> = ({ onAddPost, currentUser, selectedR
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [region, setRegion] = useState(selectedRegion !== '전체' ? selectedRegion : '서울'); // 기본값: 서울 (전체 카테고리인 경우)
-  const [images, setImages] = useState<string[]>([]); // 이미지 상태 추가
+  const [images, setImages] = useState<File[]>([]); // 이미지 상태 추가
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const post = { title, author: currentUser, content, region, images, authorProfileImage: currentUser.profileImage }; // authorProfileImage 추가
-    const postId = onAddPost(post); // 새 게시글의 ID를 반환받음
-    navigate(`/blog/post/${postId}`); // 저장 후 해당 게시글 링크로 이동
+    const post = { title, author: currentUser, content, region, images: [] }; // 이미지 필드 추가
+    const formData = new FormData();
+    formData.append('post', new Blob([JSON.stringify(post)], { type: 'application/json' }));
+    images.forEach((image, index) => {
+      formData.append('images', image); // 'image' -> 'images'로 수정
+    });
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/posts', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      const postId = response.data.id;
+      navigate(`/blog/post/${postId}`);
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
     // 상태 초기화
     setTitle('');
     setContent('');
@@ -33,7 +49,14 @@ const WritePost: React.FC<WritePostProps> = ({ onAddPost, currentUser, selectedR
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newImages = Array.from(e.target.files).map(file => URL.createObjectURL(file));
+      const newImages = Array.from(e.target.files);
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      for (let file of newImages) {
+        if (file.size > maxSize) {
+          alert('파일 크기가 10MB를 초과할 수 없습니다.');
+          return;
+        }
+      }
       setImages(prevImages => [...prevImages, ...newImages]);
     }
   };
@@ -41,7 +64,6 @@ const WritePost: React.FC<WritePostProps> = ({ onAddPost, currentUser, selectedR
   const handleImageDelete = (index: number) => {
     setImages(prevImages => {
       const newImages = prevImages.filter((_, i) => i !== index);
-      URL.revokeObjectURL(prevImages[index]); // URL 해제
       return newImages;
     });
   };
@@ -114,7 +136,7 @@ const WritePost: React.FC<WritePostProps> = ({ onAddPost, currentUser, selectedR
           <div className="image-preview-container">
             {images.map((image, index) => (
               <div key={index} className="image-preview">
-                <img src={image} alt={`Uploaded ${index}`} style={{ marginTop: '10px', maxWidth: '100%' }} />
+                <img src={URL.createObjectURL(image)} alt={`Uploaded ${index}`} style={{ marginTop: '10px', maxWidth: '100%' }} />
                 <button type="button" onClick={() => handleImageDelete(index)} className="delete-image-button">이미지 삭제</button>
               </div>
             ))}

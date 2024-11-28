@@ -1,33 +1,76 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { Post, Comment, User } from '../types/Post';
+import axios from 'axios';
 import '../App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 
 interface PostDetailProps {
   posts: Post[];
-  currentUser: string;
+  currentUser: User;
   onToggleLike: (id: number, liked: boolean) => void;
   onAddComment: (postId: number, newComment: Comment) => void;
   comments: { [postId: number]: Comment[] };
   onDeletePost: (id: number) => void;
-  onEditComment: (postId: number, commentId: number, updatedContent: string, updatedDate: string, imageUrl: string) => void;
-  onDeleteComment: (postId: number, commentId: number) => void;
+  onEditComment: (postId: number, commentId: string, updatedContent: string, updatedDate: string, imageUrl: string) => void;
+  onDeleteComment: (postId: number, commentId: string) => void;
 }
 
-const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLike, onAddComment, comments, onDeletePost, onEditComment, onDeleteComment }) => {
+const PostDetail: React.FC<PostDetailProps> = ({ currentUser, onToggleLike, comments, onDeletePost, onEditComment, onDeleteComment }) => {
   const { id } = useParams<{ id: string }>();
-  const post = posts.find(post => post.id === Number(id));
+  const [post, setPost] = useState<Post | null>(null);
   const navigate = useNavigate();
   const [newComment, setNewComment] = useState('');
-  const [replyTo, setReplyTo] = useState<number | null>(null);
-  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentContent, setEditingCommentContent] = useState<string>('');
   const [editingCommentImage, setEditingCommentImage] = useState<string | undefined>(undefined);
   const [newCommentImage, setNewCommentImage] = useState<string | undefined>(undefined);
   const [showComments, setShowComments] = useState(true);
   const [showLikedBy, setShowLikedBy] = useState(false);
+  const [likedBy, setLikedBy] = useState<User[]>([]);
+  const [postComments, setPostComments] = useState<Comment[]>([]);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/posts/${id}`, {
+          params: { userId: currentUser.id },
+        });
+        setPost(response.data);
+      } catch (error) {
+        console.error('Error fetching post:', error);
+      }
+    };
+    fetchPost();
+  }, [id, currentUser.id]);
+
+  useEffect(() => {
+    const fetchLikedBy = async () => {
+      if (showLikedBy && post) {
+        try {
+          const response = await axios.get(`http://localhost:8080/api/posts/${post.id}/likedBy`);
+          setLikedBy(response.data);
+        } catch (error) {
+          console.error('Error fetching liked by users:', error);
+        }
+      }
+    };
+    fetchLikedBy();
+  }, [showLikedBy, post]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/posts/${id}/comments`);
+        setPostComments(response.data);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+    fetchComments();
+  }, [id]);
 
   const handleDeleteImage = useCallback(
     (setImage: React.Dispatch<React.SetStateAction<string | undefined>>) => {
@@ -40,6 +83,20 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
     []
   );
 
+  const handleToggleLike = async () => {
+    if (!post) return; // post가 null인 경우 처리
+    try {
+      const updatedPost = { ...post, liked: !post.liked, likes: post.liked ? post.likes - 1 : post.likes + 1 };
+      setPost(updatedPost);
+      await axios.post(`http://localhost:8080/api/posts/${post.id}/like`, null, {
+        params: { userId: currentUser.id },
+      });
+      onToggleLike(post.id, !post.liked);
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
   if (!post) {
     return (
       <div>
@@ -49,30 +106,44 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
     );
   }
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     const newCommentData: Comment = {
-      id: Date.now(),
-      author: { id: 1, email: 'user1@example.com', nickname: currentUser, profileImage: null },
+      id: Date.now().toString(), // id를 string으로 변경
+      author: {
+        id: currentUser.id,
+        email: currentUser.email,
+        nickname: currentUser.nickname,
+      },
       content: newComment,
       date: new Date().toLocaleString(),
-      parentId: replyTo,
+      parentId: replyTo, // parentId를 string으로 변경
       image: newCommentImage,
       postId: post.id,
     };
-    onAddComment(post.id, newCommentData);
-    setNewComment('');
-    setNewCommentImage(undefined);
-    setReplyTo(null);
+
+    try {
+      await axios.post(`http://localhost:8080/api/posts/${post.id}/comments`, newCommentData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setPostComments([...postComments, newCommentData]);
+      setNewComment('');
+      setNewCommentImage(undefined);
+      setReplyTo(null);
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
   };
 
-  const handleEditCommentClick = (commentId: number, content: string, image: string | undefined) => {
+  const handleEditCommentClick = (commentId: string, content: string, image: string | undefined) => {
     setEditingCommentId(commentId);
     setEditingCommentContent(content);
     setEditingCommentImage(image);
     setReplyTo(null);
   };
 
-  const handleSaveCommentClick = (commentId: number) => {
+  const handleSaveCommentClick = (commentId: string) => {
     if (!editingCommentContent.trim()) {
       alert('내용을 입력하세요.');
       return;
@@ -92,11 +163,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
     setEditingCommentImage(undefined);
   };
 
-  const handleDeleteCommentClick = (commentId: number) => {
+  const handleDeleteCommentClick = (commentId: string) => {
     onDeleteComment(post.id, commentId);
   };
 
-  const handleReplyClick = (commentId: number, author: string) => {
+  const handleReplyClick = (commentId: string, author: string) => {
     setReplyTo(commentId);
     setEditingCommentId(null);
   };
@@ -113,26 +184,43 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
     setEditingCommentImage(undefined);
   };
 
-  const handleImageChange = (
+  const handleImageChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     setImage: React.Dispatch<React.SetStateAction<string | undefined>>
   ) => {
     if (e.target.files && e.target.files[0]) {
-      const url = URL.createObjectURL(e.target.files[0]);
-      setImage(url);
+      const formData = new FormData();
+      formData.append('image', e.target.files[0]);
+
+      try {
+        const response = await axios.post('http://localhost:8080/api/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        setImage(response.data.imageUrl);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        setImage(undefined);
+      }
     } else {
       setImage(undefined);
     }
   };
 
-  const handleDeletePostClick = (postId: number) => {
+  const handleDeletePostClick = async (postId: number) => {
     if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
-      onDeletePost(postId);
-      navigate('/blog');
+      try {
+        await axios.delete(`http://localhost:8080/api/posts/${postId}`);
+        onDeletePost(postId);
+        navigate('/blog');
+      } catch (error) {
+        console.error('Error deleting post:', error);
+      }
     }
   };
 
-  const renderComments = (comments: Comment[], parentId: number | null = null) => {
+  const renderComments = (comments: Comment[], parentId: string | null = null) => {
     return comments
       .filter(comment => comment.parentId === parentId)
       .map(comment => (
@@ -155,7 +243,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
               <div className="comment-actions">
                 <button className="comment-action-button edit-comment-button" onClick={() => handleEditCommentClick(comment.id, comment.content, comment.image)}>수정</button>
                 <button className="comment-action-button reply-button" onClick={() => handleReplyClick(comment.id, comment.author.nickname)}>답글</button>
-                {comment.author.nickname === currentUser && (
+                {comment.author.nickname === currentUser.nickname && (
                   <button className="comment-action-button delete-comment-button" onClick={() => handleDeleteCommentClick(comment.id)}>삭제</button>
                 )}
               </div>
@@ -235,7 +323,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
         <h1 className="post-title">{post.title}</h1>
         <div className="post-actions">
           <button className="form-button back-button" onClick={() => navigate('/blog')}>뒤로가기</button>
-          {post.author.nickname === currentUser && (
+          {post.author.nickname === currentUser.nickname && (
             <>
               <button className="form-button edit-post-button" onClick={() => navigate(`/blog/edit/${post.id}`)}>수정</button>
               <button className="form-button delete-post-button" onClick={() => handleDeletePostClick(post.id)}>삭제</button>
@@ -246,11 +334,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
       <div className="post-info">
         <div className="post-author-info">
           <div className="profile-details">
-            {post.author.profileImage && (
+            {/* {post.author.profileImage && (
               <img src={post.author.profileImage} alt="Author Profile" className="author-profile-image" />
-            )}
+            )} */}
             <div className="author-info">
-              <p className="post-author">{post.author.nickname} {post.author.nickname === currentUser && '(나)'}</p>
+              <p className="post-author">{post.author.nickname} {post.author.nickname === currentUser.nickname && '(나)'}</p>
               <p className="post-date">
                 {post.date}
                 {post.editedDate && (
@@ -264,12 +352,12 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
         {post.images && post.images.length > 0 && (
           <div className="post-images">
             {post.images.map((image, index) => (
-              <img key={index} className="post-image" src={image} alt={`Uploaded ${index}`} style={{ marginTop: '10px', maxWidth: '100%' }} />
+              <img key={index} className="post-image" src={`http://localhost:8080${image}`} alt={`Uploaded ${index}`} style={{ marginTop: '10px', maxWidth: '100%' }} />
             ))}
           </div>
         )}
         <div className="post-stats">
-          <div className="post-likes" onClick={() => onToggleLike(post.id, post.liked)}>
+          <div className="post-likes" onClick={handleToggleLike}>
             <span
               className="like-icon"
               role="img"
@@ -287,7 +375,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
         <div className="liked-by-container">
           <h3 className="liked-by-title">좋아요를 누른 사람들</h3>
           <ul className="liked-by-list">
-            {post.likedBy.map((user, index) => (
+            {likedBy.map((user, index) => (
               <li key={index} className="liked-by-item">{user.nickname}</li>
             ))}
           </ul>
@@ -295,7 +383,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ posts, currentUser, onToggleLik
       )}
       {showComments && (
         <div className="comments-section">
-          {renderComments(comments[post.id] || [])}
+          {renderComments(postComments)}
           {replyTo === null && editingCommentId === null && (
             <div className="add-comment">
               <textarea

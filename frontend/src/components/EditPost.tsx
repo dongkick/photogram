@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { Post as PostType, User } from '../types/Post';
+import axios from 'axios';
 
 interface EditPostProps {
   posts: PostType[];
   onEditPost: (id: number, updatedPost: { title: string; content: string; region: string; images: string[] }) => void;
-  currentUser: string;
+  currentUser: User;
 }
 
 const EditPost: React.FC<EditPostProps> = ({ posts, onEditPost, currentUser }) => {
   const { id } = useParams<{ id: string }>();
   const postId = parseInt(id || '0', 10);
-  const post = posts.find((post) => post.id === postId);
+  const post = Array.isArray(posts) ? posts.find((post) => post.id === postId) : undefined;
   const navigate = useNavigate();
 
   const [title, setTitle] = useState(post?.title || '');
@@ -30,7 +31,7 @@ const EditPost: React.FC<EditPostProps> = ({ posts, onEditPost, currentUser }) =
     }
   }, [post]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!post) {
@@ -38,19 +39,27 @@ const EditPost: React.FC<EditPostProps> = ({ posts, onEditPost, currentUser }) =
       return;
     }
 
-    if (post.author.nickname === currentUser) {
-      onEditPost(postId, { title, content, region, images });
-      navigate(`/blog/post/${id}`);
-    } 
-    else alert(`본인 글만 수정할 수 있습니다. Current User: ${currentUser}, Post Author: ${post.author.nickname}`);
+    if (post.author.nickname === currentUser.nickname) {
+      const updatedPost = { title, content, region, images };
+      try {
+        await axios.put(`http://localhost:8080/api/posts/${postId}`, updatedPost);
+        onEditPost(postId, updatedPost);
+        navigate(`/blog/post/${id}`);
+      } catch (error) {
+        console.error('Error updating post:', error);
+      }
+    } else {
+      alert(`본인 글만 수정할 수 있습니다. Current User: ${currentUser}, Post Author: ${post.author.nickname}`);
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newImages = Array.from(e.target.files).map(file => URL.createObjectURL(file));
-      setImages(newImages);
-    } 
-    else setImages([]);
+      setImages([...post?.images || [], ...newImages]);
+    } else {
+      setImages(post?.images || []);
+    }
   };
 
   const handleImageDelete = (index: number) => {
