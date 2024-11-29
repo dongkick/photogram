@@ -1,8 +1,12 @@
 package com.example.photogram;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "posts")
@@ -11,22 +15,29 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @ManyToOne
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User author;
     private String region;
     private String title;
     private String content;
-    private boolean liked;
     private String date;
     private String editedDate;
     private int likes;
     private boolean isDeleted;
+    private boolean isLiked;
     @ManyToMany
-    private List<User> likedBy;
+    @JoinTable(
+        name = "post_likes",
+        joinColumns = @JoinColumn(name = "post_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @JsonIgnoreProperties("likedPosts") // User 엔티티에서 'likedPosts' 필드가 있다면
+    private Set<User> likedBy = new HashSet<>();
     @ElementCollection
     private List<String> images;
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Comment> comments;
-    private boolean isLiked;
 
     public Post() {
         // 기본 생성자
@@ -78,15 +89,6 @@ public class Post {
         this.content = content;
     }
 
-    @JsonProperty("liked")
-    public boolean isLiked() {
-        return liked;
-    }
-
-    public void setLiked(boolean liked) {
-        this.liked = liked;
-    }
-
     @JsonProperty("date")
     public String getDate() {
         return date;
@@ -123,12 +125,21 @@ public class Post {
         this.isDeleted = isDeleted;
     }
 
+    @JsonProperty("isLiked")
+    public boolean isLiked() {
+        return isLiked;
+    }
+
+    public void setLiked(boolean isLiked) {
+        this.isLiked = isLiked;
+    }
+
     @JsonProperty("likedBy")
-    public List<User> getLikedBy() {
+    public Set<User> getLikedBy() {
         return likedBy;
     }
 
-    public void setLikedBy(List<User> likedBy) {
+    public void setLikedBy(Set<User> likedBy) {
         this.likedBy = likedBy;
     }
 

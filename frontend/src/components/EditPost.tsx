@@ -42,7 +42,19 @@ const EditPost: React.FC<EditPostProps> = ({ posts, onEditPost, currentUser }) =
     if (post.author.nickname === currentUser.nickname) {
       const updatedPost = { title, content, region, images };
       try {
-        await axios.put(`http://localhost:8080/api/posts/${postId}`, updatedPost);
+        const formData = new FormData();
+        formData.append('post', new Blob([JSON.stringify(updatedPost)], { type: 'application/json' }));
+        const inputElement = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (inputElement && inputElement.files) {
+          Array.from(inputElement.files).forEach(file => {
+            formData.append('images', file);
+          });
+        }
+        await axios.put(`http://localhost:8080/api/posts/${postId}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         onEditPost(postId, updatedPost);
         navigate(`/blog/post/${id}`);
       } catch (error) {
@@ -56,9 +68,7 @@ const EditPost: React.FC<EditPostProps> = ({ posts, onEditPost, currentUser }) =
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newImages = Array.from(e.target.files).map(file => URL.createObjectURL(file));
-      setImages([...post?.images || [], ...newImages]);
-    } else {
-      setImages(post?.images || []);
+      setImages([...images, ...newImages]);
     }
   };
 

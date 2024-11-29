@@ -9,7 +9,7 @@ import { faImage } from '@fortawesome/free-solid-svg-icons';
 interface PostDetailProps {
   posts: Post[];
   currentUser: User;
-  onToggleLike: (id: number, liked: boolean) => void;
+  onToggleLike: (id: number) => void;
   onAddComment: (postId: number, newComment: Comment) => void;
   comments: { [postId: number]: Comment[] };
   onDeletePost: (id: number) => void;
@@ -51,7 +51,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ currentUser, onToggleLike, comm
       if (showLikedBy && post) {
         try {
           const response = await axios.get(`http://localhost:8080/api/posts/${post.id}/likedBy`);
-          setLikedBy(response.data);
+          setLikedBy(Array.from(response.data)); // Set을 배열로 변환하여 사용
         } catch (error) {
           console.error('Error fetching liked by users:', error);
         }
@@ -84,14 +84,18 @@ const PostDetail: React.FC<PostDetailProps> = ({ currentUser, onToggleLike, comm
   );
 
   const handleToggleLike = async () => {
-    if (!post) return; // post가 null인 경우 처리
+    if (!post) return;
     try {
-      const updatedPost = { ...post, liked: !post.liked, likes: post.liked ? post.likes - 1 : post.likes + 1 };
+      const updatedPost = { 
+        ...post, 
+        isLiked: !post.isLiked,
+        likes: post.isLiked ? post.likes - 1 : post.likes + 1
+      };
       setPost(updatedPost);
       await axios.post(`http://localhost:8080/api/posts/${post.id}/like`, null, {
         params: { userId: currentUser.id },
       });
-      onToggleLike(post.id, !post.liked);
+      onToggleLike(post.id);
     } catch (error) {
       console.error('Error toggling like:', error);
     }
@@ -362,9 +366,9 @@ const PostDetail: React.FC<PostDetailProps> = ({ currentUser, onToggleLike, comm
               className="like-icon"
               role="img"
               aria-label="like"
-              style={{ color: post.liked ? 'red' : 'gray' }}
+              style={{ color: post.isLiked ? 'red' : 'black' }}
             >
-              {post.liked ? '❤️' : '🤍'}
+              {post.isLiked ? '❤️' : '🤍'}
             </span> {post.likes}
           </div>
           <span className="liked-by-button" onClick={toggleLikedBy} style={{ marginLeft: '10px' }}>좋아요</span>

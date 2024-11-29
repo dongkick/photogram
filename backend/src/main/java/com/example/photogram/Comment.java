@@ -1,6 +1,7 @@
 package com.example.photogram;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "comments")
@@ -14,6 +15,7 @@ public class Comment {
     private String parentId; // parentId를 String으로 변경
     private String image;
     @ManyToOne
+    @JsonBackReference
     private Post post;
 
     // Getters and setters

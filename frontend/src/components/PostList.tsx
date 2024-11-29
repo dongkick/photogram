@@ -62,15 +62,15 @@ const truncateTitleByWidth = (title: string, maxWidth: number, font: string) => 
   return title;
 };
 
-const PostList: React.FC<PostListProps> = ({ currentUser, onToggleLike, onAddComment, comments, viewedPosts, onPostClick, onDeletePost, sortOption, setSortOption, searchQuery, setSearchQuery, searchType, setSearchType }) => {
-  const [posts, setPosts] = useState<Post[]>([]);
+const PostList: React.FC<PostListProps> = ({ posts, currentUser, onToggleLike, onAddComment, comments, viewedPosts, onPostClick, onDeletePost, sortOption, setSortOption, searchQuery, setSearchQuery, searchType, setSearchType }) => {
+  const [fetchedPosts, setFetchedPosts] = useState<Post[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/posts');
-        setPosts(response.data);
+        setFetchedPosts(response.data);
       } catch (error) {
         console.error('Error fetching posts:', error);
       }
@@ -96,7 +96,7 @@ const PostList: React.FC<PostListProps> = ({ currentUser, onToggleLike, onAddCom
   }, []);
 
   const sortedPosts = useMemo(() => {
-    return posts.sort((a, b) => {
+    return fetchedPosts.sort((a, b) => {
       if (sortOption === 'date') {
         return parseKoreanDate(b.date).getTime() - parseKoreanDate(a.date).getTime();
       }
@@ -107,13 +107,13 @@ const PostList: React.FC<PostListProps> = ({ currentUser, onToggleLike, onAddCom
         return b.likes - a.likes;
       }
       if (sortOption === 'comments') {
-        const bComments = comments[b.id]?.length || 0;
-        const aComments = comments[a.id]?.length || 0;
+        const bComments = b.comments ? b.comments.length : 0;
+        const aComments = a.comments ? a.comments.length : 0;
         return bComments - aComments;
       }
       return 0;
     });
-  }, [posts, sortOption, comments]);
+  }, [fetchedPosts, sortOption, comments]);
 
   return (
     <div>
@@ -185,14 +185,14 @@ const PostList: React.FC<PostListProps> = ({ currentUser, onToggleLike, onAddCom
               <td className="post-list-likes">
                 <div className="post-likes" onClick={() => onToggleLike(post.id)}>
                   <span className="like-icon" role="img" aria-label="like">
-                    {post.liked ? '❤️' : '🤍'}
+                    {post.isLiked ? '❤️' : '🤍'}
                   </span>
                   {post.likes}
                 </div>
               </td>
               <td className="post-list-comments">
                 <div className="post-comments-container">
-                  {comments[post.id]?.length || 0}개
+                  {post.comments ? post.comments.length : 0}개
                 </div>
               </td>
             </tr>

@@ -116,9 +116,10 @@ const AppContent: React.FC = () => {
         second: '2-digit',
       }),
       likes: 0,
-      liked: false, // liked 속성 추가 (기본값: false)
+      isLiked: false, // isLiked 속성 추가 (기본값: false)
       likedBy: [], // likedBy 속성 추가 (기본값: 빈 배열)
       images: newPost.images, // images 속성 추가
+      comments: [], // comments 속성 추가 (기본값: 빈 배열)
     };
     setPosts([newPostWithId, ...posts]);
     return newPostWithId.id.toString(); // 새 게시글의 ID를 문자열로 반환
@@ -131,12 +132,8 @@ const AppContent: React.FC = () => {
   const toggleLike = (id: number) => {
     setPosts(posts.map(post => {
       if (post.id === id) {
-        const newLikes = post.liked ? post.likes - 1 : post.likes + 1; // liked 상태에 따라 좋아요 수 증가/감소
-        const newLikedBy = post.liked ? post.likedBy.filter(user => user.id !== currentUser.id) : [...post.likedBy, currentUser]; // likedBy 목록 업데이트
-        // if (!post.liked && post.author.id !== currentUser.id) {
-        //   setNotifications([{ message: `${post.author.nickname}님의 게시글에 ${currentUser.nickname}님이 좋아요를 눌렀습니다.` }]); // 새로운 알림으로 덮어쓰기
-        // }
-        return { ...post, likes: newLikes, liked: !post.liked, likedBy: newLikedBy }; // liked 상태 반전 및 likedBy 목록 업데이트
+        const newLikes = post.isLiked ? post.likes - 1 : post.likes + 1;
+        return { ...post, likes: newLikes, isLiked: !post.isLiked };
       }
       return post;
     }));

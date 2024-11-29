@@ -10,10 +10,13 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api")
@@ -30,11 +33,15 @@ public class PostController {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
+        scheduler.scheduleAtFixedRate(this::deleteUnusedImages, 0, 1, TimeUnit.SECONDS); // 이미지 삭제 스케줄링 ()
     }
-
+    
     @GetMapping("/posts")
     public List<Post> getPosts() {
-        return postRepository.findByIsDeletedFalse();
+        List<Post> posts = postRepository.findByIsDeletedFalse();
+        // 각 포스트의 댓글 정보를 초기화합니다.
+        posts.forEach(post -> post.getComments().size());
+        return posts;
     }
 
     @GetMapping("/posts/{id}")
@@ -43,7 +50,8 @@ public class PostController {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        post.setLiked(post.getLikedBy().contains(user));
+        // 포스트의 댓글 정보를 초기화합니다.
+        post.getComments().size();
         return post;
     }
 
@@ -152,6 +160,26 @@ public class PostController {
         }
     }
 
+    private void deleteUnusedImages() {
+        try (Stream<Path> paths = Files.walk(Paths.get("src/main/resources/static/images/"))) {
+            Set<String> usedImages = new HashSet<>();
+            postRepository.findAll().forEach(post -> usedImages.addAll(post.getImages()));
+            paths.filter(Files::isRegularFile).forEach(path -> {
+                String imagePath = "/images/" + path.getFileName().toString();
+                if (!usedImages.contains(imagePath)) {
+                    try {
+                        Files.delete(path);
+                        logger.info("Deleted unused image: {}", imagePath);
+                    } catch (IOException e) {
+                        logger.error("Error deleting image: {}", imagePath, e);
+                    }
+                }
+            });
+        } catch (IOException e) {
+            logger.error("Error walking through images directory", e);
+        }
+    }
+
     @GetMapping("/posts/{postId}/comments")
     public List<Comment> getCommentsByPostId(@PathVariable int postId) {
         return commentRepository.findByPostId(postId);
@@ -192,17 +220,21 @@ public class PostController {
             if (post.getLikedBy().contains(user)) {
                 post.getLikedBy().remove(user);
                 post.setLikes(post.getLikes() - 1);
+                post.setLiked(false);
             } else {
                 post.getLikedBy().add(user);
                 post.setLikes(post.getLikes() + 1);
+                post.setLiked(true);
             }
-            post.setLiked(post.getLikedBy().contains(user));
-            return postRepository.save(post);
+            Post updatedPost = postRepository.save(post);
+            // Ensure likedBy is loaded
+            updatedPost.getLikedBy().size();
+            return updatedPost;
         }).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
     @GetMapping("/posts/{postId}/likedBy")
-    public List<User> getLikedByUsers(@PathVariable int postId) {
+    public Set<User> getLikedByUsers(@PathVariable int postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
         return post.getLikedBy();
