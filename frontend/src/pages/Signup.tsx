@@ -50,7 +50,7 @@ const Signup: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       {/* 흰색 박스 */}
-      <div className="bg-white p-6 rounded-lg shadow-[0px_30px_50px_rgba(0,0,0,0.2)] w-[350px] h-[480px] flex flex-col items-center relative">
+      <div className="bg-white p-6 rounded-lg shadow-[0px_30px_50px_rgba(0,0,0,0.2)] w-[350px] h-[430px] flex flex-col items-center relative">
         {/* 뒤로가기 버튼 */}
         <Link
           to="/"
