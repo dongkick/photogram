@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.6</version> <!-- 최신 버전으로 업데이트 -->
+        <version>3.3.6</version> <!-- 최신 버전 -->
         <relativePath/>
     </parent>
     <groupId>com.example</groupId>
@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <spring-boot.version>3.3.6</spring-boot.version> <!-- 최신 버전으로 업데이트 -->
+        <spring-boot.version>3.3.6</spring-boot.version>
     </properties>
 
     <dependencies>
@@ -38,7 +38,7 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- Spring Boot DevTools (Optional) -->
+        <!-- Spring Boot DevTools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -59,24 +59,24 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Spring Security Web과 Spring Security Config 의존성 추가 -->
+        <!-- Spring Security Web과 Spring Security Config -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>6.0.0</version> <!-- Spring Boot 3.x와 호환되는 버전 -->
+            <version>6.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>6.0.0</version> <!-- Spring Boot 3.x와 호환되는 버전 -->
+            <version>6.0.0</version>
         </dependency>
 
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional> <!-- Lombok을 선택적 의존성으로 설정 -->
+            <optional>true</optional>
         </dependency>
 
         <!-- Jakarta Validation API -->
@@ -86,18 +86,25 @@
             <version>3.0.2</version>
         </dependency>
 
-        <!-- Hibernate Validator (Jakarta Validation 구현체) -->
+        <!-- Hibernate Validator -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>7.0.5.Final</version>
         </dependency>
 
-        <!-- Jakarta EL (Validation 메시지에 사용되는 Expression Language) -->
+        <!-- Jakarta EL -->
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>jakarta.el</artifactId>
             <version>4.0.2</version>
+        </dependency>
+
+        <!-- Metadata Extractor -->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.18.0</version> <!-- 최신 버전 -->
         </dependency>
 
         <!-- 테스트 의존성 -->
@@ -105,17 +112,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.29</version> <!-- 사용할 드라이버 버전을 설정하세요 -->
-        </dependency>
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
         </dependency>
     </dependencies>
 
@@ -126,14 +122,5 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-                <configuration>
-                    <!-- 선택적으로 Lombok을 제외하려면 아래 주석 해제 -->
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
     </build>
 </project>
