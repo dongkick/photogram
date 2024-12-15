@@ -1,5 +1,4 @@
 package com.example.photogram.service;
-
 import com.example.photogram.entity.User;
 import com.example.photogram.exception.UsernameAlreadyExistsException;
 import com.example.photogram.exception.UserNotFoundException;
@@ -26,7 +25,7 @@ public class AuthService {
         }
 
         User user = new User();
-        user.setUsername(username);
+        user.setNickname(username);
         user.setPassword(passwordEncoder.encode(password));  // 비밀번호 암호화
         userRepository.save(user);
 

@@ -1,9 +1,17 @@
 package com.example.photogram;
 
+import com.example.photogram.entity.User;
+import com.example.photogram.dto.MapRequest;
+import com.example.photogram.repository.UserRepository;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.GpsDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,9 +25,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 import java.util.stream.Stream;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3000")
+@Transactional
+
 public class PostController {
 
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
@@ -29,13 +44,17 @@ public class PostController {
     private final UserRepository userRepository;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    @Autowired
+    private PostsService postsService;
+
     public PostController(PostRepository postRepository, CommentRepository commentRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
-        scheduler.scheduleAtFixedRate(this::deleteUnusedImages, 0, 1, TimeUnit.SECONDS); // 이미지 삭제 스케줄링 ()
+        // 이미지 삭제 스케줄링 (1초 간격 - 실제 운영시 변경 권장)
+        scheduler.scheduleAtFixedRate(this::deleteUnusedImages, 0, 1, TimeUnit.SECONDS);
     }
-    
+
     @GetMapping("/posts")
     public List<Post> getPosts() {
         List<Post> posts = postRepository.findByIsDeletedFalse();
@@ -50,7 +69,7 @@ public class PostController {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        // 포스트의 댓글 정보를 초기화합니다.
+        // 포스트의 댓글 정보를 초기화
         post.getComments().size();
         return post;
     }
@@ -59,6 +78,7 @@ public class PostController {
     public Post addPost(@RequestPart("post") Post newPost, @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         logger.info("Received new post: {}", newPost);
         newPost.setDate(new java.util.Date().toString());
+
         if (newPost.getAuthor() != null && newPost.getAuthor().getId() != null) {
             logger.info("Author ID: {}", newPost.getAuthor().getId());
             User author = userRepository.findById(newPost.getAuthor().getId())
@@ -80,11 +100,21 @@ public class PostController {
                         })
                         .collect(Collectors.toList());
                 newPost.setImages(imagePaths);
+
+                // 첫 번째 이미지에서 GPS 정보 추출
+                Path savedImagePath = Paths.get("src/main/resources/static" + imagePaths.get(0));
+                double[] gps = extractGPS(savedImagePath);
+                if (gps != null) {
+                    newPost.setLatitude(gps[0]);
+                    newPost.setLongitude(gps[1]);
+                }
+
             } catch (RuntimeException e) {
                 throw new RuntimeException("Failed to save images", e);
             }
         }
 
+        logger.info("Saving post with latitude: {}, longitude: {}", newPost.getLatitude(), newPost.getLongitude());
         return postRepository.save(newPost);
     }
 
@@ -98,7 +128,23 @@ public class PostController {
         byte[] bytes = image.getBytes();
         Path path = Paths.get(folder + filename);
         Files.write(path, bytes);
-        return "/images/" + filename; // 반환 경로 수정
+        return "/images/" + filename;
+    }
+
+    private double[] extractGPS(Path imagePath) {
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(imagePath.toFile());
+            GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+            if (gpsDir != null && gpsDir.getGeoLocation() != null) {
+                double lat = gpsDir.getGeoLocation().getLatitude();
+                double lng = gpsDir.getGeoLocation().getLongitude();
+                logger.info("Extracted GPS: Latitude = {}, Longitude = {}", lat, lng);
+                return new double[]{lat, lng};
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to extract GPS data", e);
+        }
+        return null; // GPS 정보 없음
     }
 
     @PutMapping("/posts/{id}")
@@ -120,6 +166,18 @@ public class PostController {
                                     })
                                     .collect(Collectors.toList());
                             post.setImages(imagePaths);
+
+                            // 첫 번째 이미지에서 GPS 정보 추출
+                            Path savedImagePath = Paths.get("src/main/resources/static" + imagePaths.get(0));
+                            double[] gps = extractGPS(savedImagePath);
+                            if (gps != null) {
+                                post.setLatitude(gps[0]);
+                                post.setLongitude(gps[1]);
+                                logger.info("GPS data set successfully: Latitude = {}, Longitude = {}", gps[0], gps[1]);
+                            } else {
+                                logger.warn("No GPS data found for the image");
+                            }
+
                         } catch (RuntimeException e) {
                             throw new RuntimeException("Failed to save images", e);
                         }
@@ -134,7 +192,14 @@ public class PostController {
 
     @DeleteMapping("/posts/{id}")
     public void deletePost(@PathVariable int id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName(); // 로그인된 사용자의 ID를 가져옵니다.
+
         postRepository.findById(id).ifPresent(post -> {
+            // 현재 로그인한 사용자가 게시물의 작성자인지 확인
+            if (!post.getAuthor().getId().equals(userId)) {
+                throw new RuntimeException("Unauthorized to delete this post");
+            }
             post.setDeleted(true);
             postRepository.save(post);
             scheduler.schedule(() -> {
@@ -163,7 +228,11 @@ public class PostController {
     private void deleteUnusedImages() {
         try (Stream<Path> paths = Files.walk(Paths.get("src/main/resources/static/images/"))) {
             Set<String> usedImages = new HashSet<>();
-            postRepository.findAll().forEach(post -> usedImages.addAll(post.getImages()));
+            postRepository.findAll().forEach(post -> {
+                if (post.getImages() != null) {
+                    usedImages.addAll(post.getImages());
+                }
+            });
             paths.filter(Files::isRegularFile).forEach(path -> {
                 String imagePath = "/images/" + path.getFileName().toString();
                 if (!usedImages.contains(imagePath)) {
@@ -239,4 +308,14 @@ public class PostController {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
         return post.getLikedBy();
     }
+
+    @PostMapping("/map")
+    public List<Post> getPostsByLocation(@RequestBody MapRequest mapRequest) {
+        return postsService.getPostsByLocation(
+                mapRequest.getSwLat(),
+                mapRequest.getSwLng(),
+                mapRequest.getNeLat(),
+                mapRequest.getNeLng());
+    }
+
 }

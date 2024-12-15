@@ -6,6 +6,9 @@ import '../App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 
+// 새로 추가: MapComponent 임포트
+import MapComponent from '../components/MapComponent';
+
 interface PostDetailProps {
   posts: Post[];
   currentUser: User;
@@ -86,8 +89,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ currentUser, onToggleLike, comm
   const handleToggleLike = async () => {
     if (!post) return;
     try {
-      const updatedPost = { 
-        ...post, 
+      const updatedPost = {
+        ...post,
         isLiked: !post.isLiked,
         likes: post.isLiked ? post.likes - 1 : post.likes + 1
       };
@@ -120,7 +123,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ currentUser, onToggleLike, comm
       },
       content: newComment,
       date: new Date().toLocaleString(),
-      parentId: replyTo, // parentId를 string으로 변경
+      parentId: replyTo,
       image: newCommentImage,
       postId: post.id,
     };
@@ -338,11 +341,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ currentUser, onToggleLike, comm
       <div className="post-info">
         <div className="post-author-info">
           <div className="profile-details">
-            {/* {post.author.profileImage && (
-              <img src={post.author.profileImage} alt="Author Profile" className="author-profile-image" />
-            )} */}
             <div className="author-info">
-              <p className="post-author">{post.author.nickname} {post.author.nickname === currentUser.nickname && '(나)'}</p>
+              <p className="post-author">{post.author.nickname}{post.author.nickname === currentUser.nickname && ' (나)'}</p>
               <p className="post-date">
                 {post.date}
                 {post.editedDate && (
@@ -360,6 +360,15 @@ const PostDetail: React.FC<PostDetailProps> = ({ currentUser, onToggleLike, comm
             ))}
           </div>
         )}
+
+        {/* 여기서부터 맵을 표시할 영역 추가 */}
+        {post.latitude && post.longitude && (
+          <div className="map-container" style={{ marginTop: '20px' }}>
+            <h3>위치</h3>
+            <MapComponent latitude={post.latitude} longitude={post.longitude} />
+          </div>
+        )}
+
         <div className="post-stats">
           <div className="post-likes" onClick={handleToggleLike}>
             <span

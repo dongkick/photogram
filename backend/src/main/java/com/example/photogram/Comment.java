@@ -1,4 +1,5 @@
 package com.example.photogram;
+import com.example.photogram.entity.User; // 올바른 User 클래스 임포트
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;

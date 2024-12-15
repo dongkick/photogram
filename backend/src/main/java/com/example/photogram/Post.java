@@ -1,5 +1,6 @@
 package com.example.photogram;
 
+import com.example.photogram.entity.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -11,12 +12,21 @@ import java.util.HashSet;
 @Entity
 @Table(name = "posts")
 public class Post {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(name = "latitude", nullable = true)
+    private Double latitude;
+
+    @Column(name = "longitude", nullable = true)
+    private Double longitude;
+
     @ManyToOne
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User author;
+
     private String region;
     private String title;
     private String content;
@@ -25,16 +35,19 @@ public class Post {
     private int likes;
     private boolean isDeleted;
     private boolean isLiked;
+
     @ManyToMany
     @JoinTable(
         name = "post_likes",
         joinColumns = @JoinColumn(name = "post_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonIgnoreProperties("likedPosts") // User 엔티티에서 'likedPosts' 필드가 있다면
+    @JsonIgnoreProperties("likedPosts")
     private Set<User> likedBy = new HashSet<>();
+
     @ElementCollection
     private List<String> images;
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Comment> comments;
@@ -43,7 +56,6 @@ public class Post {
         // 기본 생성자
     }
 
-    // Getters and setters
     @JsonProperty("id")
     public int getId() {
         return id;
@@ -160,4 +172,13 @@ public class Post {
     public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
+
+    @JsonProperty("latitude")
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    @JsonProperty("longitude")
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
+
 }

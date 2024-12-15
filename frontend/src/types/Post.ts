@@ -21,11 +21,13 @@ export interface Post {
   title: string;
   author: User;
   date: string;
-  editedDate?: string; // 수정된 날짜 필드 추가
+  editedDate?: string; // 수정된 날짜 필드
   likes: number;
-  isLiked: boolean;  // liked 속성 유지
-  likedBy: User[]; // 좋아요를 누른 사용자 목록 유지
+  isLiked: boolean; // 좋아요 여부
+  likedBy: User[]; // 좋아요를 누른 사용자 목록
   content: string;
-  images: string[]; // 이미지 속성을 배열로 변경
-  comments: Comment[]; // 댓글 필드 추가
+  images: string[]; // 이미지 배열
+  comments: Comment[]; // 댓글 배열
+  latitude?: number; // 위도 (선택적)
+  longitude?: number; // 경도 (선택적)
 }
