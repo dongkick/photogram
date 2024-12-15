@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import Header from '../components/Header'; // Header 컴포넌트 import
 import { Button } from '../components/Button'; // Button 컴포넌트 import
 import { PlusCircle, HelpCircle, Heart, MessageCircle, ChevronLeft, ChevronRight, MapPin, Calendar } from 'lucide-react';
@@ -38,6 +38,7 @@ const recentTrips: RecentTrip[] = [
 ];
 
 const Main: React.FC = () => {
+  const [selectedRegion, setSelectedRegion] = useState<string>('전체');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -53,7 +54,7 @@ const Main: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
+      <Header selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
       
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="space-y-8 px-4 sm:px-6 lg:px-8">

@@ -1,7 +1,6 @@
 package com.example.photogram.service;
 
 import com.example.photogram.entity.User;
-import com.example.photogram.dto.UserDto;
 import com.example.photogram.exception.UsernameAlreadyExistsException;
 import com.example.photogram.exception.UserNotFoundException;
 import com.example.photogram.exception.InvalidPasswordException;

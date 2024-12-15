@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import Header2 from './components/Header2';
+import Header from './components/Header';
 import PostList from './components/PostList';
 import WritePost from './components/WritePost';
 import EditPost from './components/EditPost';
@@ -297,7 +297,7 @@ const AppContent: React.FC = () => {
         <>
           <div className="header-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <div className="header-left" style={{ flexGrow: 1, marginRight: '10px' }}>
-              <Header2 selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
+              <Header selectedRegion={selectedRegion} setSelectedRegion={setSelectedRegion} />
               {/* onToggleNotifications={handleToggleNotifications} /> */}
             </div>
           </div>
